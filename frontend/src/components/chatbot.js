@@ -91,21 +91,6 @@ const ChatInterface = () => {
       transition={{ duration: 0.5 }}
     >
       <div className="max-w-7xl mx-auto px-4 py-8">
-        <div className="flex justify-between items-center mb-8">
-          <Link to="/">
-            <motion.button
-              whileHover={{ scale: 1.05 }}
-              whileTap={{ scale: 0.95 }}
-              className="bg-blue-600 text-white p-3 rounded-xl hover:bg-blue-700"
-            >
-              Back to Home
-            </motion.button>
-          </Link>
-          <h2 className="text-3xl font-bold text-center mb-4 text-blue-800">
-            MindCare AI Companion
-          </h2>
-        </div>
-        
         <div className="bg-white rounded-2xl shadow-xl p-8 max-w-2xl mx-auto">
           <div className="relative h-[400px] overflow-y-auto space-y-4">
             {messages.map((msg) => (
