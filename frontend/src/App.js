@@ -1,14 +1,18 @@
-// src/App.js
-
 import React from 'react';
+import LandingPage from './components/landingpage';
 import MoodTracker from './components/moodtracker';
 import Chatbot from './components/chatbot';
 
 function App() {
   return (
-    <div className="p-4">
-      <MoodTracker />
-      <Chatbot />
+    <div>
+      <LandingPage />
+      <div id="mood">
+        <MoodTracker />
+      </div>
+      <div id="chat">
+        <Chatbot />
+      </div>
     </div>
   );
 }
