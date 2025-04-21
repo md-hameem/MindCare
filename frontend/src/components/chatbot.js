@@ -1,12 +1,11 @@
 import { useState, useEffect } from 'react';
-import { motion, AnimatePresence } from 'framer-motion';
+import { motion } from 'framer-motion';
 import { RiSendPlaneFill } from 'react-icons/ri';
-import { Link } from 'react-router-dom';
 
 const ChatInterface = () => {
   const [messages, setMessages] = useState([]);
   const [input, setInput] = useState('');
-  const [typing, setTyping] = useState(false);
+  // const [typing, setTyping] = useState(false);
   const [isThinking, setIsThinking] = useState(false);
 
   useEffect(() => {

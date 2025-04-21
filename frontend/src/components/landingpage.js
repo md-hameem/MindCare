@@ -77,7 +77,7 @@ const LandingPage = () => {
                 <div>
                   <h3 className="font-semibold text-gray-800">FastAPI Backend</h3>
                   <p className="text-sm text-gray-600">
-                    Python-based REST API with MongoDB integration for real-time data storage
+                    Python-based REST API with llama3 for real-time reply
                   </p>
                 </div>
               </motion.div>
