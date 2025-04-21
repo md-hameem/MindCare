@@ -1,47 +1,104 @@
 import React from 'react';
 import { motion } from 'framer-motion';
-import heroImg from './mentalHealth.jpg';
-// import heroImg from "/public/mentalHealth.jpg"
+import { Link } from 'react-router-dom';
 
-export default function LandingPage() {
+const LandingPage = () => {
   return (
-    <div className="min-h-screen bg-gradient-to-br from-indigo-100 to-purple-200 flex flex-col items-center justify-center text-center p-6">
-      <motion.h1
-        initial={{ opacity: 0, y: -50 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ duration: 1 }}
-        className="text-4xl md:text-6xl font-extrabold text-indigo-800 mb-4"
-      >
-        Welcome to MindCare 💙
-      </motion.h1>
-
-      <motion.p
-        initial={{ opacity: 0 }}
-        animate={{ opacity: 1 }}
-        transition={{ delay: 0.5, duration: 1 }}
-        className="text-lg md:text-xl text-gray-700 max-w-xl mb-6"
-      >
-        Your AI-powered companion for mental health and emotional support. Track your mood, chat with our AI, and take control of your well-being.
-      </motion.p>
-
-      <motion.img
-        src={heroImg}
-        alt="Mental Health Hero"
-        className="w-3/4 md:w-1/2 rounded-xl shadow-lg border-4 border-indigo-300"
-        initial={{ scale: 0.8, opacity: 0 }}
-        animate={{ scale: 1, opacity: 1 }}
-        transition={{ delay: 0.7, duration: 1 }}
-      />
-
-      <motion.div
-        className="mt-8 flex gap-4"
-        initial={{ opacity: 0, y: 30 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ delay: 1, duration: 1 }}
-      >
-        <a href="#mood" className="bg-indigo-600 text-white px-6 py-3 rounded-xl shadow-md hover:bg-indigo-700 transition duration-300">Start Tracking</a>
-        <a href="#chat" className="bg-white border border-indigo-600 text-indigo-600 px-6 py-3 rounded-xl hover:bg-indigo-100 transition duration-300">Talk to AI</a>
-      </motion.div>
-    </div>
+    <motion.div 
+      className="min-h-screen bg-gradient-to-br from-indigo-50 to-purple-50"
+      initial={{ opacity: 0 }}
+      animate={{ opacity: 1 }}
+      exit={{ opacity: 0 }}
+      transition={{ duration: 0.6 }}
+    >
+      <div className="max-w-7xl mx-auto px-4 py-16">
+        <motion.div 
+          className="flex flex-col items-center justify-center h-full space-y-8"
+          initial={{ y: '20px', opacity: 0 }}
+          animate={{ y: 0, opacity: 1 }}
+          transition={{ duration: 1 }}
+        >
+          <motion.h1
+            className="text-5xl font-extrabold text-center text-gradient text-blue-600 to-purple-700"
+            initial={{ y: -20, opacity: 0 }}
+            animate={{ y: 0, opacity: 1 }}
+            transition={{ duration: 0.8 }}
+          >
+            MindCare AI
+          </motion.h1>
+          
+          <motion.div className="space-y-6 max-w-3xl text-center">
+            <motion.p
+              className="text-xl text-gray-700"
+              initial={{ y: 20, opacity: 0 }}
+              animate={{ y: 0, opacity: 1 }}
+              transition={{ delay: 0.2, duration: 0.8 }}
+            >
+              Your personal mental health companion powered by advanced AI technology
+            </motion.p>
+            
+            <motion.div className="space-y-4">
+              <motion.div 
+                className="flex items-center gap-4 p-4 bg-white rounded-xl shadow-lg"
+                initial={{ y: 20, opacity: 0 }}
+                animate={{ y: 0, opacity: 1 }}
+                transition={{ delay: 0.4, duration: 0.8 }}
+              >
+                <span className="text-4xl text-blue-600">
+                  <motion.span 
+                    animate={{ rotate: 360 }}
+                    transition={{ repeat: Infinity, duration: 2 }}
+                  >
+                    ⚙️
+                  </motion.span>
+                </span>
+                <div>
+                  <h3 className="font-semibold text-gray-800">Ollama Local Server</h3>
+                  <p className="text-sm text-gray-600">
+                    Running on Ollama's custom model for context-aware responses
+                  </p>
+                </div>
+              </motion.div>
+              
+              <motion.div 
+                className="flex items-center gap-4 p-4 bg-white rounded-xl shadow-lg"
+                initial={{ y: 20, opacity: 0 }}
+                animate={{ y: 0, opacity: 1 }}
+                transition={{ delay: 0.6, duration: 0.8 }}
+              >
+                <span className="text-4xl text-indigo-600">
+                  <motion.span 
+                    animate={{ y: -5 }}
+                    transition={{ repeat: Infinity, duration: 1.5 }}
+                  >
+                    🚀
+                  </motion.span>
+                </span>
+                <div>
+                  <h3 className="font-semibold text-gray-800">FastAPI Backend</h3>
+                  <p className="text-sm text-gray-600">
+                    Python-based REST API with MongoDB integration for real-time data storage
+                  </p>
+                </div>
+              </motion.div>
+            </motion.div>
+          </motion.div>
+          
+          <motion.div className="mt-12">
+            <Link to="/chat">
+              <motion.button
+                whileHover={{ scale: 1.05 }}
+                whileTap={{ scale: 0.95 }}
+                className="bg-gradient-to-r from-blue-600 to-purple-700 text-white px-10 py-4 rounded-full shadow-xl font-semibold tracking-wider"
+              >
+                Start Conversation
+              </motion.button>
+            </Link>
+          </motion.div>
+        </motion.div>
+      </div>
+    </motion.div>
   );
-}
+};
+
+export default LandingPage;

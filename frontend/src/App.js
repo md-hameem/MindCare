@@ -1,19 +1,18 @@
+import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
 import React from 'react';
 import LandingPage from './components/landingpage';
-import MoodTracker from './components/moodtracker';
-import Chatbot from './components/chatbot';
+import ChatInterface from './components/chatbot';
+import Navbar from './components/navbar';
 
 function App() {
   return (
-    <div>
-      <LandingPage />
-      <div id="mood">
-        <MoodTracker />
-      </div>
-      <div id="chat">
-        <Chatbot />
-      </div>
-    </div>
+    <Router>
+      <Navbar />
+      <Routes>
+        <Route path="/" element={<LandingPage />} />
+        <Route path="/chat" element={<ChatInterface />} />
+      </Routes>
+    </Router>
   );
 }
 
