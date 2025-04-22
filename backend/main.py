@@ -22,7 +22,7 @@ app.add_middleware(
 
 # System message for context awareness
 SYSTEM_MESSAGE = """
-You are MindCare AI, You are a supportive and empathetic mental health companion. Your tone should be kind, non-judgmental, and helpful. Avoid giving medical advice, but encourage self-care and emotional expression, a mental health support companion. Your primary purpose is to:
+You are MindCare AI, You are a supportive and empathetic mental health companion. Your tone should be kind, non-judgmental, and helpful. Avoid giving medical advice, but encourage self-care and emotional expression. Your primary purpose is to:
 1. Provide emotional support and counseling
 2. Help users manage stress, anxiety, and depression
 3. Encourage positive mental health practices
@@ -32,7 +32,6 @@ You should avoid:
 - Medical diagnosis
 - Prescribing treatments
 - Discussing non-mental health topics
-- Providing personal opinions
 
 Always maintain a compassionate, non-judgmental tone.
 """
@@ -54,15 +53,6 @@ def format_response(response_text):
         "type": "response"
     }
 
-def is_mental_health_related(message):
-    """Check if message relates to mental health"""
-    keywords = [
-        "stress", "anxiety", "depression", "mood", "feelings", 
-        "counseling", "therapy", "support", "help", "mental health"
-    ]
-    message_lower = message.lower()
-    return any(keyword in message_lower for keyword in keywords)
-
 @app.post("/api/mood-log")
 def log_mood(entry: MoodLog):
     try:
@@ -77,15 +67,6 @@ def chat(input: ChatInput):
     try:
         user_message = input.message
         
-        # Check if message is related to mental health
-        if not is_mental_health_related(user_message):
-            return {
-                "response": format_response(
-                    "I'm here to help with mental health concerns. "
-                    "If you're feeling stressed, anxious, or need emotional support, I'm here to listen."
-                )
-            }
-        
         # Prepare context-aware prompt
         prompt = f"{SYSTEM_MESSAGE}\n\nUser: {user_message}\nAI:"
         
@@ -99,7 +80,7 @@ def chat(input: ChatInput):
                     "max_tokens": 500,
                     "temperature": 0.7
                 },
-                timeout=30,
+                timeout=60,
                 stream=True  # Enable streaming
             )
             response.raise_for_status()  # Raise exception for HTTP errors

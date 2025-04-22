@@ -5,7 +5,6 @@ import { RiSendPlaneFill } from 'react-icons/ri';
 const ChatInterface = () => {
   const [messages, setMessages] = useState([]);
   const [input, setInput] = useState('');
-  // const [typing, setTyping] = useState(false);
   const [isThinking, setIsThinking] = useState(false);
 
   useEffect(() => {
@@ -89,7 +88,7 @@ const ChatInterface = () => {
       exit={{ opacity: 0 }}
       transition={{ duration: 0.5 }}
     >
-      <div className="max-w-7xl mx-auto px-4 py-8">
+      <div className="max-w-full mx-auto px-4 py-10">
         <div className="bg-white rounded-2xl shadow-xl p-8 max-w-2xl mx-auto">
           <div className="relative h-[400px] overflow-y-auto space-y-4">
             {messages.map((msg) => (
@@ -126,12 +125,11 @@ const ChatInterface = () => {
           </div>
           
           <div className="mt-8 flex gap-2">
-            <input
-              type="text"
+            <textarea
               value={input}
               onChange={(e) => setInput(e.target.value)}
               onKeyDown={(e) => e.key === 'Enter' && sendMessage()}
-              className="flex-1 p-3 rounded-xl border border-gray-300 focus:ring-2 focus:ring-blue-500"
+              className="flex-1 p-4 h-24 rounded-xl border border-gray-300 focus:ring-2 focus:ring-blue-500 resize-none"
               placeholder="Share your thoughts..."
             />
             
