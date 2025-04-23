@@ -9,6 +9,8 @@ from pymongo import MongoClient
 from passlib.context import CryptContext
 from typing import Optional
 from fastapi.security import APIKeyCookie
+from fastapi import Request, HTTPException
+from fastapi.security import HTTPBearer, HTTPAuthorizationCredentials
 
 app = FastAPI()
 
@@ -18,7 +20,7 @@ logger = logging.getLogger(__name__)
 
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["http://localhost:3000"],  # Allow requests from your frontend origin
+    allow_origins=["http://localhost:3000"],
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
@@ -28,6 +30,8 @@ app.add_middleware(
 client = MongoClient("mongodb+srv://MindCare:mindcare123456@mindcare.bylphla.mongodb.net/?retryWrites=true&w=majority&appName=MindCare")
 db = client.mindcare
 users_collection = db.users
+
+security = HTTPBearer()
 
 # Password hashing
 pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
@@ -81,6 +85,7 @@ def format_response(response_text):
 # Session management
 def get_current_user(request: Request):
     session_token = request.cookies.get("session_token")
+    
     if not session_token:
         raise HTTPException(
             status_code=status.HTTP_401_UNAUTHORIZED,
@@ -142,7 +147,14 @@ def login(user: UserLogin, response: Response):
             )
         
         # Set session cookie
-        response.set_cookie(key="session_token", value="dummy_token", httponly=True)
+        response.set_cookie(
+            key="session_token",
+            value="dummy_token",
+            httponly=True,
+            secure=False,  # Set to True in production
+            samesite="lax",
+            max_age=3600  # 1 hour expiry
+        )
         
         return {"status": "success", "message": "Login successful"}
     
@@ -151,6 +163,32 @@ def login(user: UserLogin, response: Response):
         raise HTTPException(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
             detail="Login failed"
+        )
+    
+@app.get("/api/profile")
+def get_profile(request: Request):
+    try:
+        current_user = get_current_user(request)
+        db_user = users_collection.find_one({"username": current_user["username"]})
+        if not db_user:
+            raise HTTPException(
+                status_code=status.HTTP_404_NOT_FOUND,
+                detail="User not found"
+            )
+        
+        return {
+            "username": db_user["username"],
+            "email": db_user["email"],
+            "created_at": db_user["created_at"].isoformat()
+        }
+    
+    except HTTPException as e:
+        raise e
+    except Exception as e:
+        logger.error(f"Profile error: {str(e)}")
+        raise HTTPException(
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            detail="Failed to retrieve profile"
         )
 
 @app.post("/api/chatbot")

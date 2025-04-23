@@ -1,11 +1,12 @@
 import { useState } from 'react';
 import { motion } from 'framer-motion';
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 
 const Login = () => {
   const [username, setUsername] = useState('');
   const [password, setPassword] = useState('');
   const [error, setError] = useState(null);
+  const navigate = useNavigate();
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -17,16 +18,19 @@ const Login = () => {
           'Content-Type': 'application/json',
         },
         body: JSON.stringify({ username, password }),
+        credentials: 'include',  // Include credentials (cookies)
       });
 
-      const data = await response.json();
-
-      if (data.status === 'success') {
-        // Store the session token
-        localStorage.setItem('session_token', 'dummy_token');
-        window.location.href = '/chat';
-      } else {
+      if (!response.ok) {
+        const data = await response.json();
         setError(data.detail);
+        return;
+      }
+
+      const data = await response.json();
+      if (data.status === 'success') {
+        // Redirect to profile page
+        window.location.href = '/profile';
       }
     } catch (err) {
       setError('An error occurred during login. Please try again later.');

@@ -1,12 +1,13 @@
 import { motion } from 'framer-motion';
 import { Link, useNavigate } from 'react-router-dom';
-import { FaHome } from 'react-icons/fa';
+import { FaHome, FaUser } from 'react-icons/fa';
 
 const Navbar = () => {
   const navigate = useNavigate();
 
   const handleLogout = () => {
-    localStorage.removeItem('session_token');
+    // Remove the session token from cookies
+    document.cookie = 'session_token=; Path=/; Expires=Thu, 01 Jan 1970 00:00:00 UTC; SameSite=lax; Secure=false; HttpOnly=false';
     navigate('/login');
   };
 
@@ -35,6 +36,15 @@ const Navbar = () => {
                 whileTap={{ scale: 0.8 }}
               >
                 <FaHome size={24} />
+              </motion.div>
+            </Link>
+            
+            <Link to="/profile">
+              <motion.div 
+                className="text-gray-600 hover:text-blue-600 transition duration-300"
+                whileTap={{ scale: 0.8 }}
+              >
+                <FaUser size={24} />
               </motion.div>
             </Link>
             
