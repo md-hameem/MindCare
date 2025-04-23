@@ -3,6 +3,7 @@ import { motion } from 'framer-motion';
 import { Link } from 'react-router-dom';
 
 const Register = () => {
+  const [name, setName] = useState('');
   const [username, setUsername] = useState('');
   const [password, setPassword] = useState('');
   const [email, setEmail] = useState('');
@@ -17,16 +18,18 @@ const Register = () => {
         headers: {
           'Content-Type': 'application/json',
         },
-        body: JSON.stringify({ username, password, email }),
+        body: JSON.stringify({ name, username, password, email }),
       });
 
-      const data = await response.json();
-
-      if (data.status === 'success') {
-        // Redirect to login page
-        window.location.href = '/login';
-      } else {
+      if (!response.ok) {
+        const data = await response.json();
         setError(data.detail);
+        return;
+      }
+
+      const data = await response.json();
+      if (data.status === 'success') {
+        window.location.href = '/login';
       }
     } catch (err) {
       setError('An error occurred during registration. Please try again later.');
@@ -69,6 +72,20 @@ const Register = () => {
                 </div>
               )}
               <form onSubmit={handleSubmit}>
+                <div className="mb-4">
+                  <label className="block text-gray-700 text-sm font-bold mb-2" htmlFor="name">
+                    Full Name
+                  </label>
+                  <input
+                    className="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"
+                    id="name"
+                    type="text"
+                    placeholder="Full Name"
+                    value={name}
+                    onChange={(e) => setName(e.target.value)}
+                    required
+                  />
+                </div>
                 <div className="mb-4">
                   <label className="block text-gray-700 text-sm font-bold mb-2" htmlFor="username">
                     Username

@@ -8,16 +8,9 @@ const Profile = () => {
   const navigate = useNavigate();
 
   useEffect(() => {
-    // Check if user is authenticated
-    const sessionToken = document.cookie.split(';').find(cookie => cookie.includes('session_token'))?.split('=')[1];
-    if (!sessionToken) {
-      navigate('/login');
-      return;
-    }
-
     // Fetch user profile
     fetchProfile();
-  }, [navigate]);
+  }, []); // Removed navigate dependency to avoid unnecessary re-renders
 
   const fetchProfile = async () => {
     try {
@@ -29,8 +22,12 @@ const Profile = () => {
       });
 
       if (!response.ok) {
-        const data = await response.json();
-        setError(data.detail);
+        if (response.status === 401 || response.status === 403 || response.status === 404) {
+          navigate('/login'); // Redirect to login if unauthorized
+        } else {
+          const data = await response.json();
+          setError(data.detail || 'An error occurred.');
+        }
         return;
       }
 
@@ -40,6 +37,27 @@ const Profile = () => {
       setError('Failed to retrieve profile information. Please try again later.');
       console.error(err);
     }
+  };
+
+  const handleLogout = () => {
+    // Call the logout endpoint
+    fetch('http://localhost:8000/api/logout', {
+      method: 'POST',
+      credentials: 'include',
+    })
+    .then(response => {
+      if (!response.ok) {
+        throw new Error('Logout failed');
+      }
+      return response.json();
+    })
+    .then(data => {
+      navigate('/login');
+    })
+    .catch(error => {
+      setError('Logout failed. Please try again later.');
+      console.error(error);
+    });
   };
 
   return (
@@ -83,23 +101,29 @@ const Profile = () => {
               ) : (
                 <div>
                   <p className="text-lg font-semibold mb-2">
+                    Name: {profile.name}
+                  </p>
+                  <p className="text-lg font-semibold mb-2">
                     Username: {profile.username}
                   </p>
                   <p className="text-gray-600 mb-2">
                     Email: {profile.email}
                   </p>
-                  <p className="text-gray-600">
+                  <p className="text-gray-600 mb-2">
                     Joined: {new Date(profile.created_at).toLocaleDateString()}
+                  </p>
+                  <p className="text-green-600 font-semibold mb-2">
+                    Reward Points: {profile.reward_points}
                   </p>
                 </div>
               )}
               <div className="mt-6">
-                <Link
-                  to="/settings"
-                  className="inline-block bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded focus:outline-none focus:shadow-outline w-full"
+                <button
+                  onClick={handleLogout}
+                  className="inline-block bg-red-500 hover:bg-red-600 text-white font-bold py-2 px-4 rounded focus:outline-none focus:shadow-outline w-full"
                 >
-                  Edit Profile
-                </Link>
+                  Logout
+                </button>
               </div>
             </motion.div>
           </motion.div>

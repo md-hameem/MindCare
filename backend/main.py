@@ -11,6 +11,7 @@ from typing import Optional
 from fastapi.security import APIKeyCookie
 from fastapi import Request, HTTPException
 from fastapi.security import HTTPBearer, HTTPAuthorizationCredentials
+import uuid
 
 app = FastAPI()
 
@@ -66,6 +67,7 @@ class ChatInput(BaseModel):
     message: str
 
 class UserRegister(BaseModel):
+    name: str
     username: str
     password: str
     email: str
@@ -85,16 +87,25 @@ def format_response(response_text):
 # Session management
 def get_current_user(request: Request):
     session_token = request.cookies.get("session_token")
-    
+
     if not session_token:
+        logger.info("No session token found in cookies.")
         raise HTTPException(
             status_code=status.HTTP_401_UNAUTHORIZED,
             detail="Not authenticated"
         )
-    
-    # Here you would typically validate the session token against your database
-    # For simplicity, we're assuming the token is valid if it exists
-    return {"username": "authenticated_user"}
+
+    # Validate the session token against the database
+    db_user = users_collection.find_one({"session_token": session_token})
+    if not db_user:
+        logger.info(f"Invalid session token: {session_token}")
+        raise HTTPException(
+            status_code=status.HTTP_401_UNAUTHORIZED,
+            detail="Invalid session token"
+        )
+
+    logger.info(f"Authenticated user: {db_user['username']}")
+    return {"username": db_user["username"]}
 
 @app.post("/api/register")
 def register(user: UserRegister):
@@ -112,10 +123,12 @@ def register(user: UserRegister):
         
         # Create new user
         new_user = {
+            "name": user.name,
             "username": user.username,
             "password": hashed_password,
             "email": user.email,
-            "created_at": datetime.now()
+            "created_at": datetime.now(),
+            "reward_points": 0  # Initialize reward points
         }
         
         users_collection.insert_one(new_user)
@@ -138,33 +151,42 @@ def login(user: UserLogin, response: Response):
                 status_code=status.HTTP_400_BAD_REQUEST,
                 detail="Invalid username or password"
             )
-        
+
         # Verify password
         if not pwd_context.verify(user.password, db_user["password"]):
             raise HTTPException(
                 status_code=status.HTTP_400_BAD_REQUEST,
                 detail="Invalid username or password"
             )
-        
+
+        # Generate a unique session token
+        session_token = str(uuid.uuid4())
+
+        # Update the user's session token in the database
+        users_collection.update_one(
+            {"_id": db_user["_id"]},
+            {"$set": {"session_token": session_token}}
+        )
+
         # Set session cookie
         response.set_cookie(
             key="session_token",
-            value="dummy_token",
+            value=session_token,
             httponly=True,
             secure=False,  # Set to True in production
             samesite="lax",
-            max_age=3600  # 1 hour expiry
+            max_age=31536000  # 1 year in seconds
         )
-        
+
         return {"status": "success", "message": "Login successful"}
-    
+
     except Exception as e:
         logger.error(f"Login error: {str(e)}")
         raise HTTPException(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
             detail="Login failed"
         )
-    
+
 @app.get("/api/profile")
 def get_profile(request: Request):
     try:
@@ -177,9 +199,11 @@ def get_profile(request: Request):
             )
         
         return {
+            "name": db_user["name"],
             "username": db_user["username"],
             "email": db_user["email"],
-            "created_at": db_user["created_at"].isoformat()
+            "created_at": db_user["created_at"].isoformat(),
+            "reward_points": db_user.get("reward_points", 0)
         }
     
     except HTTPException as e:
@@ -189,6 +213,28 @@ def get_profile(request: Request):
         raise HTTPException(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
             detail="Failed to retrieve profile"
+        )
+    
+@app.post("/api/logout")
+def logout(response: Response):
+    try:
+        # Remove the session token cookie
+        response.set_cookie(
+            key="session_token",
+            value="",
+            httponly=True,
+            secure=False,  # Set to True in production
+            samesite="lax",
+            max_age=0  # Expire the cookie immediately
+        )
+        
+        return {"status": "success", "message": "Logout successful"}
+    
+    except Exception as e:
+        logger.error(f"Logout error: {str(e)}")
+        raise HTTPException(
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            detail="Logout failed"
         )
 
 @app.post("/api/chatbot")
@@ -253,3 +299,29 @@ def get_rewards(user_id: str):
     except Exception as e:
         logger.error(f"Rewards error: {str(e)}")
         return {"error": "Failed to retrieve rewards"}
+
+@app.post("/api/mood-log")
+def log_mood(mood_log: MoodLog, request: Request):
+    try:
+        # Check if user is authenticated
+        current_user = get_current_user(request)
+
+        # Insert mood log into the database
+        mood_entry = {
+            "user_id": current_user["username"],
+            "mood": mood_log.mood,
+            "notes": mood_log.notes,
+            "timestamp": datetime.now()
+        }
+        db.mood_logs.insert_one(mood_entry)
+
+        return {"status": "success", "message": "Mood log saved successfully"}
+
+    except HTTPException as e:
+        raise e
+    except Exception as e:
+        logger.error(f"Mood log error: {str(e)}")
+        raise HTTPException(
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            detail="Failed to save mood log"
+        )

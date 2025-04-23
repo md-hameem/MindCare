@@ -30,7 +30,7 @@ const Login = () => {
       const data = await response.json();
       if (data.status === 'success') {
         // Redirect to profile page
-        window.location.href = '/profile';
+        navigate('/profile', { replace: true });
       }
     } catch (err) {
       setError('An error occurred during login. Please try again later.');
