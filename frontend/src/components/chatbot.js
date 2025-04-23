@@ -1,13 +1,22 @@
 import { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
 import { RiSendPlaneFill } from 'react-icons/ri';
+import { Link, useNavigate } from 'react-router-dom';
 
 const ChatInterface = () => {
   const [messages, setMessages] = useState([]);
   const [input, setInput] = useState('');
   const [isThinking, setIsThinking] = useState(false);
+  const navigate = useNavigate();
 
   useEffect(() => {
+    // Check if user is authenticated
+    const sessionToken = localStorage.getItem('session_token');
+    if (!sessionToken) {
+      navigate('/login');
+      return;
+    }
+
     // Add welcome message when component mounts
     setMessages(prev => [
       ...prev,
@@ -18,7 +27,7 @@ const ChatInterface = () => {
         createdAt: new Date()
       }
     ]);
-  }, []);
+  }, [navigate]);
 
   const sendMessage = async () => {
     if (!input.trim()) return;
@@ -39,7 +48,10 @@ const ChatInterface = () => {
       try {
         const res = await fetch("http://localhost:8000/api/chatbot", {
           method: "POST",
-          headers: { "Content-Type": "application/json" },
+          headers: { 
+            "Content-Type": "application/json",
+            "Cookie": `session_token=${localStorage.getItem('session_token')}`
+          },
           body: JSON.stringify({ message: input })
         });
         const data = await res.json();

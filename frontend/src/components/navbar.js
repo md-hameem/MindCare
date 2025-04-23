@@ -1,8 +1,15 @@
 import { motion } from 'framer-motion';
-import { Link } from 'react-router-dom';
-import { FaHome, FaComments } from 'react-icons/fa';
+import { Link, useNavigate } from 'react-router-dom';
+import { FaHome } from 'react-icons/fa';
 
 const Navbar = () => {
+  const navigate = useNavigate();
+
+  const handleLogout = () => {
+    localStorage.removeItem('session_token');
+    navigate('/login');
+  };
+
   return (
     <motion.nav
       initial={{ y: -20, opacity: 0 }}
@@ -31,12 +38,21 @@ const Navbar = () => {
               </motion.div>
             </Link>
             
-            <Link to="/chat">
+            <Link to="/login">
               <motion.div 
                 className="text-gray-600 hover:text-blue-600 transition duration-300"
                 whileTap={{ scale: 0.8 }}
               >
-                <FaComments size={24} />
+                Login
+              </motion.div>
+            </Link>
+            
+            <Link to="/register">
+              <motion.div 
+                className="text-gray-600 hover:text-blue-600 transition duration-300"
+                whileTap={{ scale: 0.8 }}
+              >
+                Register
               </motion.div>
             </Link>
           </div>

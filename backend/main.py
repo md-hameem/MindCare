@@ -1,10 +1,14 @@
-from fastapi import FastAPI, Request
+from fastapi import FastAPI, Request, HTTPException, status, Depends, Response
 from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel
 import requests
 import json
 from datetime import datetime
 import logging
+from pymongo import MongoClient
+from passlib.context import CryptContext
+from typing import Optional
+from fastapi.security import APIKeyCookie
 
 app = FastAPI()
 
@@ -20,6 +24,17 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
+# MongoDB Atlas Connection
+client = MongoClient("mongodb+srv://MindCare:mindcare123456@mindcare.bylphla.mongodb.net/?retryWrites=true&w=majority&appName=MindCare")
+db = client.mindcare
+users_collection = db.users
+
+# Password hashing
+pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
+
+# Session management
+session_cookie = APIKeyCookie(name="session_token")
+
 # System message for context awareness
 SYSTEM_MESSAGE = """
 You are MindCare AI, You are a supportive and empathetic mental health companion. Your tone should be kind, non-judgmental, and helpful. Avoid giving medical advice, but encourage self-care and emotional expression. Your primary purpose is to:
@@ -32,6 +47,7 @@ You should avoid:
 - Medical diagnosis
 - Prescribing treatments
 - Discussing non-mental health topics
+- Providing personal opinions
 
 Always maintain a compassionate, non-judgmental tone.
 """
@@ -45,6 +61,15 @@ class MoodLog(BaseModel):
 class ChatInput(BaseModel):
     message: str
 
+class UserRegister(BaseModel):
+    username: str
+    password: str
+    email: str
+
+class UserLogin(BaseModel):
+    username: str
+    password: str
+
 def format_response(response_text):
     """Format AI response for better readability"""
     return {
@@ -53,18 +78,87 @@ def format_response(response_text):
         "type": "response"
     }
 
-@app.post("/api/mood-log")
-def log_mood(entry: MoodLog):
+# Session management
+def get_current_user(request: Request):
+    session_token = request.cookies.get("session_token")
+    if not session_token:
+        raise HTTPException(
+            status_code=status.HTTP_401_UNAUTHORIZED,
+            detail="Not authenticated"
+        )
+    
+    # Here you would typically validate the session token against your database
+    # For simplicity, we're assuming the token is valid if it exists
+    return {"username": "authenticated_user"}
+
+@app.post("/api/register")
+def register(user: UserRegister):
     try:
-        logger.info(f"Mood log received for user {entry.user_id}")
-        return {"status": "success", "message": "Mood logged successfully (not stored persistently)"}
+        # Check if user already exists
+        existing_user = users_collection.find_one({"username": user.username})
+        if existing_user:
+            raise HTTPException(
+                status_code=status.HTTP_400_BAD_REQUEST,
+                detail="Username already registered"
+            )
+        
+        # Hash password
+        hashed_password = pwd_context.hash(user.password)
+        
+        # Create new user
+        new_user = {
+            "username": user.username,
+            "password": hashed_password,
+            "email": user.email,
+            "created_at": datetime.now()
+        }
+        
+        users_collection.insert_one(new_user)
+        return {"status": "success", "message": "User registered successfully"}
+    
     except Exception as e:
-        logger.error(f"Error logging mood: {str(e)}")
-        return {"error": "Failed to log mood"}
+        logger.error(f"Registration error: {str(e)}")
+        raise HTTPException(
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            detail="Registration failed"
+        )
+
+@app.post("/api/login")
+def login(user: UserLogin, response: Response):
+    try:
+        # Find user
+        db_user = users_collection.find_one({"username": user.username})
+        if not db_user:
+            raise HTTPException(
+                status_code=status.HTTP_400_BAD_REQUEST,
+                detail="Invalid username or password"
+            )
+        
+        # Verify password
+        if not pwd_context.verify(user.password, db_user["password"]):
+            raise HTTPException(
+                status_code=status.HTTP_400_BAD_REQUEST,
+                detail="Invalid username or password"
+            )
+        
+        # Set session cookie
+        response.set_cookie(key="session_token", value="dummy_token", httponly=True)
+        
+        return {"status": "success", "message": "Login successful"}
+    
+    except Exception as e:
+        logger.error(f"Login error: {str(e)}")
+        raise HTTPException(
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            detail="Login failed"
+        )
 
 @app.post("/api/chatbot")
-def chat(input: ChatInput):
+def chat(input: ChatInput, request: Request):
     try:
+        # Check if user is authenticated
+        current_user = get_current_user(request)
+        
         user_message = input.message
         
         # Prepare context-aware prompt
@@ -80,7 +174,7 @@ def chat(input: ChatInput):
                     "max_tokens": 500,
                     "temperature": 0.7
                 },
-                timeout=60,
+                timeout=30,
                 stream=True  # Enable streaming
             )
             response.raise_for_status()  # Raise exception for HTTP errors
@@ -107,6 +201,8 @@ def chat(input: ChatInput):
         
         return {"response": final_response}
     
+    except HTTPException as e:
+        raise e
     except Exception as e:
         logger.error(f"Chat error: {str(e)}", exc_info=True)
         return {"error": "An error occurred while processing your request"}
