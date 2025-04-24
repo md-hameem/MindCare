@@ -325,3 +325,33 @@ def log_mood(mood_log: MoodLog, request: Request):
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
             detail="Failed to save mood log"
         )
+
+@app.get("/api/mood-logs")
+def get_mood_logs(request: Request):
+    try:
+        # Check if user is authenticated
+        current_user = get_current_user(request)
+
+        # Retrieve mood logs for the authenticated user
+        mood_logs = list(db.mood_logs.find({"user_id": current_user["username"]}))
+
+        # Format the logs for response
+        formatted_logs = [
+            {
+                "mood": log["mood"],
+                "notes": log["notes"],
+                "timestamp": log["timestamp"].isoformat()
+            }
+            for log in mood_logs
+        ]
+
+        return formatted_logs
+
+    except HTTPException as e:
+        raise e
+    except Exception as e:
+        logger.error(f"Error retrieving mood logs: {str(e)}")
+        raise HTTPException(
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            detail="Failed to retrieve mood logs"
+        )

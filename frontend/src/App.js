@@ -6,6 +6,7 @@ import Navbar from './components/navbar';
 import Login from './components/login';
 import Register from './components/register';
 import Profile from './components/userprofile';
+import MoodTracker from './components/moodtracker';
 
 function App() {
   return (
@@ -17,6 +18,7 @@ function App() {
         <Route path="/login" element={<Login />} />
         <Route path="/register" element={<Register />} />
         <Route path="/profile" element={<Profile />} />
+        <Route path="/moodtracker" element={<MoodTracker />} />
       </Routes>
     </Router>
   );
