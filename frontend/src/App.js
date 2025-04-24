@@ -8,6 +8,8 @@ import Register from './components/register';
 import Profile from './components/userprofile';
 import MoodTracker from './components/moodtracker';
 import MoodBooster from './components/moodbooster';
+import EmergencyAlert from './components/emargencyalert';
+import DoctorSuggestion from './components/docsuggestion';
 
 function App() {
   return (
@@ -21,6 +23,8 @@ function App() {
         <Route path="/profile" element={<Profile />} />
         <Route path="/moodtracker" element={<MoodTracker />} />
         <Route path="/moodbooster" element={<MoodBooster />} />
+        <Route path="/emergencyalert" element={<EmergencyAlert />} />
+        <Route path="/docsuggestion" element={<DoctorSuggestion />} />
       </Routes>
     </Router>
   );
