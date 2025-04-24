@@ -18,6 +18,15 @@
 - **Gamified Rewards System**  
   Encourage consistency and positive behavior with a point-based rewards system to reinforce healthy habits.
 
+- **Emergency Alerts**  
+  Access immediate assistance during critical situations with our alert system.
+
+- **Doctor Suggestions**  
+  Find nearby therapists and mental health professionals for personalized support.
+
+- **Mood Booster**  
+  Access AI-generated recommendations to uplift your mood and stay positive.
+
 ---
 
 ## 🧰 Prerequisites
@@ -110,6 +119,9 @@ Open your browser and navigate to:
 - **Chat Interface** – Start a conversation with the AI chatbot.
 - **Mood Tracking** – Log moods and visualize emotional trends.
 - **Rewards System** – Earn points and rewards for engagement and self-care activities.
+- **Emergency Alerts** – Access immediate help during critical situations.
+- **Doctor Suggestions** – Find nearby therapists and mental health professionals.
+- **Mood Booster** – Get AI-generated recommendations to improve your mood.
 
 ---
 
