@@ -100,6 +100,17 @@ const Navbar = () => {
             )}
 
             {isLoggedIn && (
+              <Link to="/moodbooster">
+                <motion.div 
+                  className="text-gray-600 hover:text-blue-600 transition duration-300"
+                  whileTap={{ scale: 0.8 }}
+                >
+                  Mood Booster
+                </motion.div>
+              </Link>
+            )}
+
+            {isLoggedIn && (
               <button
                 onClick={handleLogout}
                 className="text-gray-600 hover:text-red-500 transition duration-300"

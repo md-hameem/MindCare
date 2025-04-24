@@ -355,3 +355,24 @@ def get_mood_logs(request: Request):
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
             detail="Failed to retrieve mood logs"
         )
+
+@app.get("/api/mood-booster")
+def mood_booster():
+    try:
+        # Simulate AI-generated recommendations
+        recommendations = [
+            "Take a short walk outside to refresh your mind.",
+            "Listen to your favorite music or a calming playlist.",
+            "Practice deep breathing exercises for 5 minutes.",
+            "Write down three things you're grateful for today.",
+            "Try a quick 10-minute workout or stretch session."
+        ]
+
+        return {"recommendations": recommendations}
+
+    except Exception as e:
+        logger.error(f"Error generating mood booster recommendations: {str(e)}")
+        raise HTTPException(
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            detail="Failed to generate recommendations"
+        )
