@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
 import { Link, useNavigate } from 'react-router-dom';
-import { FaHome, FaUser, FaSignOutAlt } from 'react-icons/fa';
+import { FaHome, FaUser, FaSignOutAlt, FaHeartbeat, FaLightbulb, FaExclamationTriangle, FaHospital, FaComments } from 'react-icons/fa';
 import MoodTracker from './moodtracker';
 
 const Navbar = () => {
@@ -70,20 +70,22 @@ const Navbar = () => {
           <div className="flex items-center gap-6">
             <Link to="/">
               <motion.div 
-                className="text-gray-600 hover:text-blue-600 transition duration-300"
+                className="text-gray-600 hover:text-blue-600 transition duration-300 flex items-center gap-2"
                 whileTap={{ scale: 0.8 }}
               >
-                <FaHome size={24} />
+                <FaHome size={20} />
+                <span className="hidden md:inline">Home</span>
               </motion.div>
             </Link>
 
             {isLoggedIn && (
               <Link to="/profile">
                 <motion.div 
-                  className="text-gray-600 hover:text-blue-600 transition duration-300"
+                  className="text-gray-600 hover:text-blue-600 transition duration-300 flex items-center gap-2"
                   whileTap={{ scale: 0.8 }}
                 >
-                  <FaUser size={24} />
+                  <FaUser size={20} />
+                  <span className="hidden md:inline">Profile</span>
                 </motion.div>
               </Link>
             )}
@@ -91,10 +93,11 @@ const Navbar = () => {
             {isLoggedIn && (
               <Link to="/moodtracker">
                 <motion.div 
-                  className="text-gray-600 hover:text-blue-600 transition duration-300"
+                  className="text-gray-600 hover:text-blue-600 transition duration-300 flex items-center gap-2"
                   whileTap={{ scale: 0.8 }}
                 >
-                  Mood Tracker
+                  <FaHeartbeat size={20} />
+                  <span className="hidden md:inline">Mood Tracker</span>
                 </motion.div>
               </Link>
             )}
@@ -102,10 +105,11 @@ const Navbar = () => {
             {isLoggedIn && (
               <Link to="/moodbooster">
                 <motion.div 
-                  className="text-gray-600 hover:text-blue-600 transition duration-300"
+                  className="text-gray-600 hover:text-blue-600 transition duration-300 flex items-center gap-2"
                   whileTap={{ scale: 0.8 }}
                 >
-                  Mood Booster
+                  <FaLightbulb size={20} />
+                  <span className="hidden md:inline">Mood Booster</span>
                 </motion.div>
               </Link>
             )}
@@ -113,10 +117,11 @@ const Navbar = () => {
             {isLoggedIn && (
               <Link to="/emergencyalert">
                 <motion.div 
-                  className="text-gray-600 hover:text-red-600 transition duration-300"
+                  className="text-gray-600 hover:text-red-600 transition duration-300 flex items-center gap-2"
                   whileTap={{ scale: 0.8 }}
                 >
-                  Emergency Alert
+                  <FaExclamationTriangle size={20} />
+                  <span className="hidden md:inline">Emergency Alert</span>
                 </motion.div>
               </Link>
             )}
@@ -124,10 +129,23 @@ const Navbar = () => {
             {isLoggedIn && (
               <Link to="/docsuggestion">
                 <motion.div 
-                  className="text-gray-600 hover:text-blue-600 transition duration-300"
+                  className="text-gray-600 hover:text-blue-600 transition duration-300 flex items-center gap-2"
                   whileTap={{ scale: 0.8 }}
                 >
-                  Doctor Suggestion
+                  <FaHospital size={20} />
+                  <span className="hidden md:inline">Doctor Suggestion</span>
+                </motion.div>
+              </Link>
+            )}
+
+            {isLoggedIn && (
+              <Link to="/chat">
+                <motion.div 
+                  className="text-gray-600 hover:text-blue-600 transition duration-300 flex items-center gap-2"
+                  whileTap={{ scale: 0.8 }}
+                >
+                  <FaComments size={20} />
+                  <span className="hidden md:inline">Chat Bot</span>
                 </motion.div>
               </Link>
             )}
