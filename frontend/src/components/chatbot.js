@@ -49,9 +49,9 @@ const ChatInterface = () => {
         const res = await fetch("http://localhost:8000/api/chatbot", {
           method: "POST",
           headers: { 
-            "Content-Type": "application/json",
-            "Cookie": `session_token=${localStorage.getItem('session_token')}`
+            "Content-Type": "application/json"
           },
+          credentials: "include", // Ensure cookies are sent with the request
           body: JSON.stringify({ message: input })
         });
         const data = await res.json();

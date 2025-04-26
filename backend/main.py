@@ -258,7 +258,7 @@ def chat(input: ChatInput, request: Request):
                     "max_tokens": 500,
                     "temperature": 0.7
                 },
-                timeout=30,
+                timeout=60,
                 stream=True  # Enable streaming
             )
             response.raise_for_status()  # Raise exception for HTTP errors
